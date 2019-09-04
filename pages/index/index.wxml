@@ -1,0 +1,19 @@
+<!--index.wxml-->
+<view class="">
+  <view class="choose_con">
+    <button bindtap="chooseType" data-type="year">年</button>
+    <button bindtap="chooseType" data-type="year-month">月</button>
+    <button bindtap="chooseType" data-type="week">周</button>
+    <button bindtap="chooseType" data-type="date">日</button>
+
+  </view>
+
+  <picktime
+  	title="默认选择周"
+		type="{{ type }}"
+		value="{{ startDate }}"
+	  bind:getTimes="getTimesFn"
+  ></picktime>
+</view>
+
+

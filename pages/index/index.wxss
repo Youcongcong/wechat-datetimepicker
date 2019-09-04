@@ -1,0 +1,8 @@
+.choose_con{
+  display: flex;
+  flex-flow: row;
+}
+button{
+    flex:1
+    
+}

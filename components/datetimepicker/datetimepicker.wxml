@@ -1,0 +1,69 @@
+<view class="hi-picker">
+  
+  <view wx:if="{{ showToolbar }}" class="hi-picker__toolbar">
+      <!--<view class="hi-picker__cancel" bindtap="onConfirm">{{ confirmButtonText }}</view>-->
+      <view class="hi-picker__title">{{ title }}</view>
+      
+  </view>
+
+  <view wx:if="{{ loading }}" class="hi-picker__loading">
+
+  </view>
+
+  <picker-view
+      indicator-style="height: {{ itemHeight }}px; background-color: #F2FCF6; opacity: 0.5;"
+      style="width: 100%; height: {{ itemHeight * visibleItemCount + 'px' }}"
+      bindchange="onChange"
+      value="{{ pickerValue }}"
+      class="hi-picker__columns"
+  >
+    <picker-view-column
+        wx:for="{{ columns }}"
+        wx:for-item="row"
+        wx:for-index="rowIndex"
+        wx:key="rowIndex"
+        class="hi-picker-column"
+    >
+      <view
+          wx:for="{{ row }}"
+          wx:key="{{ item }}"
+          style="line-height: {{ itemHeight }}px;"
+          class="hi-picker-column__item {{ index === pickerValue[rowIndex] ? 'hi-picker-column__item--selected' : '' }}"
+      >
+        <text class="hi-picker-column__item_label" wx:if="{{rowIndex == 1 && type == 'week'}}">第</text>{{ item }}<text class="hi-picker-column__item_label">{{ parse.columnDesc(type, rowIndex) }}</text>
+      </view>
+    </picker-view-column>
+  </picker-view>
+
+  
+</view>
+<wxs module="parse">
+  var DATETIME_LABEL = ['年', '月', '日', '点', '分'];
+  var DATE_LABEL = ['年', '月', '日'];
+  var WEEK_LABEL = ['年', '周'];  
+  var YEAR_MONTH = ['年', '月']; 
+  var YEAR = ['年']; 
+
+  module.exports = {
+    columnDesc : function( type, rowIndex ){
+      switch(type) {
+          case 'datetime':
+          return DATETIME_LABEL[rowIndex];
+          break;
+        case 'date':
+          return DATE_LABEL[rowIndex];
+          break;
+        case 'week':
+          return WEEK_LABEL[rowIndex];
+          break;
+        case 'year-month':
+          return YEAR_MONTH[rowIndex];
+          break;
+        case 'year':
+          return YEAR[rowIndex]
+          break;
+        default:;
+      }
+    }
+  }
+</wxs>

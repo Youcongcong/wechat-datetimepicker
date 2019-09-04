@@ -9,8 +9,6 @@
   </view>
 
   <picktime
-   
-  	title="默认选择周"
 		type="{{type}}"
 		value="{{ startDate }}"
 	  bind:getTimes="getTimesFn"

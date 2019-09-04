@@ -24,7 +24,10 @@ Component({
       observer: 'watchValueFun'
     },
     title: String,
-    loading: Boolean,
+    loading: {
+      type: Boolean,
+      value: false
+    },
     itemHeight: {
       type: Number,
       value: 44
@@ -44,7 +47,7 @@ Component({
     type: {
       type: String,
       value: 'datetime',
-      observer: 'watchTypeFun'
+     
     },
     showToolbar: {
       type: Boolean,
@@ -56,11 +59,11 @@ Component({
     },
     minDate: {
       type: Number,
-      value: new Date(currentYear - 10, 0, 1).getTime()
+      value: new Date(currentYear - 2, 0, 1).getTime()
     },
     maxDate: {
       type: Number,
-      value: new Date(currentYear + 10, 11, 31).getTime()
+      value: new Date(currentYear + 2, 11, 31).getTime()
     },
     minHour: {
       type: Number,
@@ -109,25 +112,23 @@ Component({
       
       val = _correctValue(val, this.data);
       var isEqual = val === data.innerValue;
-
+      this.watchSetData();
       if (!isEqual) {
         this.setData({
-          innerValue: val
+          innerValue: val,
+          pickerValue: []
         }, function () {
           _this2.updateColumnValue(val);
           _this2.triggerEvent('input', val);
         });
       }
-      this.watchSetData();
      
     },
     
     watchSetData() {
-   
       var results = _getRanges(this.data).map(function (_ref) {
         var type = _ref.type,
           range = _ref.range;
-
         var values = _times(range[1] - range[0] + 1, function (index) {
           var value = range[0] + index;
           value = type === 'year' ? "" + value : _pad(value);
@@ -139,7 +140,6 @@ Component({
       this.setData({
         columns: results
       })
-      
       return results;
     },
     _getWeekOfYear(date){
@@ -186,17 +186,20 @@ Component({
           innerValue: value,
           
         }, function () {
-          // _this3.updateColumnValue(value);
-          // _this3.triggerEvent('input', value);
+          _this3.updateColumnValue(value);
+          _this3.triggerEvent('input', value);
 
-          // _this3.triggerEvent('change', _this3);
+          _this3.triggerEvent('change', _this3);
         });
         this.triggerEvent('getTimes',{current,end});
       }else {
         var year = _getTrueValue(values[0]);
-        var month = _getTrueValue(values[1]);
-        var maxDate = _getMonthEndDay(year, month);
-        var date = _getTrueValue(values[2]);
+        if (values.length > 1){
+          
+        }
+        var month = values.length > 1 ? _getTrueValue(values[1]) : 2;
+        var maxDate = values.length > 1 ? _getMonthEndDay(year, month) : 1;
+        var date = values.length > 1 ? _getTrueValue(values[2]): 2;
 
         if (data.type === 'year-month') {
           date = 1;
@@ -207,31 +210,40 @@ Component({
         var minute = 0;
 
         if (data.type === 'datetime') {
-          hour = _getTrueValue(values[3]);
-          minute = _getTrueValue(values[4]);
+          hour = values.length > 1 ? _getTrueValue(values[3]):1;
+          minute = values.length > 1 ? _getTrueValue(values[4]):1;
         }
-
-        value = new Date(year, month - 1, date, hour, minute);
-      }
-      if(data.type != 'week'){
-        month = month >= 10 ? month : `0${month}`
-        date = date >= 10 ? date : `0${date}`
-        var showValue = `${year}-${month}-${date}`
-        var valueStr = `${year}-${month}-${date}`
-        value = _correctValue(value, this.properties);
-        this.setData({
-          showValue,
-          innerValue: value,
+        if (month != undefined){
+          value = new Date(year, month - 1, date, hour, minute);
           
-        }, function () {
-          // _this3.updateColumnValue(value);
-          _this3.triggerEvent('input', value);
-
-          _this3.triggerEvent('change', _this3);
-        });
-
-        this.triggerEvent('getTimes',{value,valueStr});
+        }else{
+          value = new Date(year, 12, 1);
+        }
+       
       }
+      try {
+        if (data.type != 'week') {
+          month = month >= 10 ? month : `0${month}`
+          date = date >= 10 ? date : `0${date}`
+          var showValue = `${year}-${month}-${date}`
+          var valueStr = `${year}-${month}-${date}`
+          value = _correctValue(value, this.properties);
+          this.setData({
+            showValue,
+            innerValue: value,
+
+          }, function () {
+            _this3.updateColumnValue(value);
+            _this3.triggerEvent('input', value);
+
+            _this3.triggerEvent('change', _this3);
+          });
+
+          this.triggerEvent('getTimes', { value, valueStr });
+        }} catch (error) {
+          console.log(error)
+      }
+      
     },
     getColumnValue: function getColumnValue(index) {
       return this.getValues()[index];
@@ -275,36 +287,47 @@ Component({
         this.watchSetData()
       });
     },
+    
     updateColumnValue: function updateColumnValue(value) {
-      var values = [];
-      var columns = this.data.columns;
+     
+     
+        var values = [];
+        var columns = this.data.columns;
 
-      if (this.properties.type === 'time') {
-        var currentValue = value.split(':');
-        values = [columns[0].indexOf(currentValue[0]), columns[1].indexOf(currentValue[1])];
-      } else {
-       
-        var date = new Date(value);
-        values = [columns[0].indexOf("" + date.getFullYear()), columns[1].indexOf(_pad(date.getMonth() + 1))];
-        if (this.properties.type === 'date') {
-          values.push(columns[2].indexOf(_pad(date.getDate())));
-        } 
-        if (this.properties.type == 'week'){
-          //初始化周
-          var week = this._getWeekOfYear(value);
+        if (this.properties.type === 'time') {
+          var currentValue = value.split(':');
+
+          values = [columns[0].indexOf(currentValue[0]), columns[1].indexOf(currentValue[1])];
+        } else {
+
           var date = new Date(value);
-          values = [columns[0].indexOf("" + date.getFullYear()), columns[1].indexOf(_pad(week))];
+          if (columns.length>1){
+            values = [columns[0].indexOf("" + date.getFullYear()), columns[1].indexOf(_pad(date.getMonth() + 1))];
+          }
+          
+          if (this.properties.type === 'date') {
+            
+            values.push(columns[2].indexOf(_pad(date.getDate())));
+          }
+          if (this.properties.type == 'year'){
+            values = [columns[0].indexOf("" + date.getFullYear())]
+          }
+          if (this.properties.type == 'week') {
+            //初始化周
+            var week = this._getWeekOfYear(value);
+            values = [columns[0].indexOf("" + date.getFullYear()), columns[1].indexOf(_pad(week))];
+          }
+          if (this.properties.type === 'datetime') {
+            values.push(columns[2].indexOf(_pad(date.getDate())), columns[3].indexOf(_pad(date.getHours())), columns[4].indexOf(_pad(date.getMinutes())));
+          }
         }
-        if (this.properties.type === 'datetime') {
-          values.push(columns[2].indexOf(_pad(date.getDate())), columns[3].indexOf(_pad(date.getHours())), columns[4].indexOf(_pad(date.getMinutes())));
-        }
-      }
 
-      this.setData({
-        pickerValue: values
-      },  () => {
-        // this.watchSetData()
-      });
+        this.setData({
+          pickerValue: values
+        }, () => {
+          this.watchSetData()
+        });
+      
     }
   }
 })

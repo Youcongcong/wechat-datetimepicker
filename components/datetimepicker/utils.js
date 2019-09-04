@@ -159,10 +159,10 @@ function _getRanges(data) {
     minMonth = _this$getBoundary2.minMonth,
     minHour = _this$getBoundary2.minHour,
     minMinute = _this$getBoundary2.minMinute;
-  if (data.type === 'year') {
-    minYear = currentYear - 5
-    maxYear = currentYear
-  }
+  // if (data.type === 'year') {
+  //   minYear = currentYear - 5
+  //   maxYear = currentYear
+  // }
   var result = [{
     type: 'year',
     range: [minYear, maxYear]
@@ -182,17 +182,11 @@ function _getRanges(data) {
   if (data.type === 'date') result.splice(3, 2);
   if (data.type === 'year-month') result.splice(2, 3);
   if (data.type === 'year') result.splice(1, 4);
-  if (data.type === 'year') result.splice(1, 4);
+  // if (data.type === 'year') result.splice(2, 3);
+
   if (data.type === 'week'){
     let y = new Date(data.innerValue).getFullYear()
-    // console.log(data.innerValue);
-    // console.log(currentYear);
-    // console.log(y);
-
-
     var weekrange = _getWeeks(y).week
-
-    // console.log(weekrange);
 
     result = [{
       type: 'year',

@@ -3,7 +3,7 @@
 Page({
   data: {
     startDate: new Date().getTime(),
-    type: 'date'
+    type: 'year'
   },
 
   onShareAppMessage() {
